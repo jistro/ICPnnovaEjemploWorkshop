@@ -1,0 +1,24 @@
+type metadatosEmpleadoInput = 
+ record {
+   anioNacimiento: nat;
+   apellidoMaterno: text;
+   apellidoPaterno: text;
+   diaNacimiento: nat;
+   mesNacimiento: nat;
+   nombre: text;
+ };
+type metadatosEmpleado = 
+ record {
+   anioNacimiento: nat32;
+   apellidoMaterno: text;
+   apellidoPaterno: text;
+   diaNacimiento: nat8;
+   mesNacimiento: nat8;
+   nombre: text;
+ };
+service : {
+  actualizarEmpleado: (text, metadatosEmpleado) -> ();
+  eliminarEmpleado: (text) -> ();
+  nuevoEmpleado: (text, metadatosEmpleadoInput) -> ();
+  obtenerEmpleado: (text) -> (metadatosEmpleado) query;
+}

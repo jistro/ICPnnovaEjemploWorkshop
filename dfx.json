@@ -1,19 +1,19 @@
 {
   "canisters": {
-    "workshop_backend": {
-      "main": "src/workshop_backend/main.mo",
+    "workshopCOLLEDGE_backend": {
+      "main": "src/workshopCOLLEDGE_backend/main.mo",
       "type": "motoko"
     },
-    "workshop_frontend": {
+    "workshopCOLLEDGE_frontend": {
       "dependencies": [
-        "workshop_backend"
+        "workshopCOLLEDGE_backend"
       ],
       "frontend": {
-        "entrypoint": "src/workshop_frontend/src/index.html"
+        "entrypoint": "src/workshopCOLLEDGE_frontend/src/index.html"
       },
       "source": [
-        "src/workshop_frontend/assets",
-        "dist/workshop_frontend/"
+        "src/workshopCOLLEDGE_frontend/assets",
+        "dist/workshopCOLLEDGE_frontend/"
       ],
       "type": "assets"
     }
