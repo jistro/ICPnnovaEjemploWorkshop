@@ -1,11 +1,17 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
-import { workshopCOLLEDGE_backend as canister } from "../../declarations/workshopCOLLEDGE_backend";
+import { workshopCOLLEDGE_backend as canister, createActor } from "../../declarations/workshopCOLLEDGE_backend";
+import { AuthClient } from "@dfinity/auth-client";
+import { HttpAgent } from "@dfinity/agent";
+import { ethers } from "ethers";
 
-
+let actor = canister;
 
 const Empleado = () => {// funcion main
   const [empleadoSearch, setEmpleadoSearch] = React.useState(null);
+  const [empleadoSearchWithId, setEmpleadoSearchWithId] = React.useState(null);
+  const [whoami, setWhoami] = React.useState(null);
+  const [evmAddress, setEvmAddress] = React.useState(null);
 
   const buscarEmpleado = () => {
     const inputIds = ["idEmpleado"];
@@ -25,6 +31,17 @@ const Empleado = () => {// funcion main
       alert("Error en la busqueda del empleado");
     });
   }
+
+  const buscarEmpleadoConId = (idEmpleado) => {
+    canister.obtenerEmpleado(idEmpleado).then((result) => {
+      console.log(result);
+      setEmpleadoSearchWithId(result);
+    }).catch((err) => {
+      console.log(err);
+      alert("Error en la busqueda del empleado");
+    });
+  }
+
 
   const crearEmpleado = () => {
     const inputIds = [
@@ -68,14 +85,14 @@ const Empleado = () => {// funcion main
     }
 
     canister.nuevoEmpleado(
-      idEmpleado,{
-        anioNacimiento: anioNacimientoInt,
-        apellidoMaterno: apellidoMaterno,
-        apellidoPaterno: apellidoPaterno,
-        diaNacimiento: diaNacimientoInt,
-        mesNacimiento: mesNacimientoInt,
-        nombre: nombre,
-      }
+      idEmpleado, {
+      anioNacimiento: anioNacimientoInt,
+      apellidoMaterno: apellidoMaterno,
+      apellidoPaterno: apellidoPaterno,
+      diaNacimiento: diaNacimientoInt,
+      mesNacimiento: mesNacimientoInt,
+      nombre: nombre,
+    }
     ).then((result) => {
       alert("Empleado creado");
     }).catch((err) => {
@@ -105,6 +122,56 @@ const Empleado = () => {// funcion main
       console.log(err);
       alert("Error en el borrado del empleado");
     });
+  }
+
+  const local_ii_url = `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`;
+
+  const callInternetIdentity = async () => {
+    let iiUrl;
+    if (process.env.DFX_NETWORK === "local") {
+      iiUrl = local_ii_url;
+    } else if (process.env.DFX_NETWORK === "ic") {
+      //llama a 
+      iiUrl = `https://identity.ic0.app`;
+    } else {
+      iiUrl = local_ii_url;
+    }
+    const authClient = await AuthClient.create();
+
+    await new Promise((resolve) => {
+      authClient.login({
+        identityProvider: iiUrl,
+        onSuccess: resolve,
+        onError: () => {
+          alert('Login error');
+        },
+      });
+    });
+
+    const identity = await authClient.getIdentity();
+    const agent = new HttpAgent({ identity });
+
+    actor = createActor(process.env.CANISTER_ID_WORKSHOPCOLLEDGE_BACKEND, {
+      agent,
+    });
+
+    const principal = await actor.whoami();
+    console.log(principal.toString());
+    setWhoami(principal.toString());
+
+  };
+
+  const getEVMAddressWithMetaMask = async () => {
+    if (window.ethereum) {
+      console.log("MetaMask is installed!");
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        console.log(accounts);
+        setEvmAddress(accounts[0]);
+      } catch (error) {}
+    } else {
+      console.log("MetaMask not installed!");
+    }
   }
 
   return (
@@ -138,6 +205,27 @@ const Empleado = () => {// funcion main
         <input id="borrarEmpleado_id" type="text" placeholder="Ingrese id de empleado" />
         <button onClick={borrarEmpleado}>Borrar Empleado</button>
       </div>
+      <h2>LogIn</h2>
+      {/* verificar si se logeo con internet identioty o metamask */}
+      {whoami || evmAddress ? (
+      <div>
+        <p>Logeado con {whoami ? `Internet identity` : `Metamask`}</p>
+        <p>{whoami ? whoami : evmAddress}</p>
+        <button onClick={() => { setWhoami(null); setEvmAddress(null); }}>LogOut</button>
+      </div>
+      ) : (
+        <div>
+          <button onClick={callInternetIdentity}>
+            LogIn with Internet Identity ∞
+          </button>
+          <h2>MetaMask</h2>
+          <div>
+            <button onClick={getEVMAddressWithMetaMask}>
+              LogIn with Ethereum in MetaMask Ξ
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

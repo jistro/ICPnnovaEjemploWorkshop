@@ -20,6 +20,7 @@ export const idlFactory = ({ IDL }) => {
     'eliminarEmpleado' : IDL.Func([IDL.Text], [], []),
     'nuevoEmpleado' : IDL.Func([IDL.Text, metadatosEmpleadoInput], [], []),
     'obtenerEmpleado' : IDL.Func([IDL.Text], [metadatosEmpleado], ['query']),
+    'whoami' : IDL.Func([], [IDL.Principal], []),
   });
 };
 export const init = ({ IDL }) => { return []; };

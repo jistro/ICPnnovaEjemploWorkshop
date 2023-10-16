@@ -21,4 +21,5 @@ service : {
   eliminarEmpleado: (text) -> ();
   nuevoEmpleado: (text, metadatosEmpleadoInput) -> ();
   obtenerEmpleado: (text) -> (metadatosEmpleado) query;
+  whoami: () -> (principal);
 }

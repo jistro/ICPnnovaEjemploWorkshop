@@ -22,4 +22,5 @@ export interface _SERVICE {
   'eliminarEmpleado' : ActorMethod<[string], undefined>,
   'nuevoEmpleado' : ActorMethod<[string, metadatosEmpleadoInput], undefined>,
   'obtenerEmpleado' : ActorMethod<[string], metadatosEmpleado>,
+  'whoami' : ActorMethod<[], Principal>,
 }
